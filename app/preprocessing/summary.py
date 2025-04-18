@@ -31,7 +31,7 @@ class SummaryProccesing:
     def custom_summary_document(self, document: str, llm:SummaryLlm) -> tuple[str, str]:
         template = llm.summary_prompt_template.strip()
         prompt = PromptTemplate.from_template(template)
-        chain = prompt | llm
+        chain = prompt | llm.llm
         response = chain.invoke(document)
         return response.content, prompt.invoke(document).text
 

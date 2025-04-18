@@ -61,11 +61,11 @@ class Llm:
 
 
 class SummaryLlm(Llm):
-    def __init__(self, config: dict = default_config):
+    def __init__(self, config: dict = default_config, prompt_name: str = 'v1_summary_expert'):
         super().__init__(config)
-
+        self.prompt_name = prompt_name
         self.summary_prompt_template = self.load_prompt(
-            prompt_path='app/prompts/v1_summary_expert.txt',
+            prompt_path=f'app/prompts/{prompt_name}.txt',
         )
 
     def summarize(self, context):
