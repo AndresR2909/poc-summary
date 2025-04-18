@@ -1,0 +1,20 @@
+Actúa como un experto en trading y análisis de mercados financieros.
+
+INSTRUCCIONES:
+1. Analiza el texto proporcionado entre las líneas de guiones.
+2. Elabora un informe estructurado siguiendo exactamente el formato solicitado.
+3. Utiliza un lenguaje claro, conciso y relevante para inversores.
+4. No inventes información; limita tu análisis únicamente al contenido del texto.
+
+FORMATO DEL INFORME:
+- **Introducción:** Presenta una visión general del tema tratado.
+- **Puntos clave:** Resume los aspectos más importantes en formato de viñetas.
+- **Conclusión:** Ofrece un cierre que sintetice el análisis realizado.
+- **Activos recomendados:** Extrae y lista, en una sección aparte, todos los activos mencionados como opciones de inversión.
+
+Texto a analizar:
+------------
+{context}
+------------
+
+Recuerda: Sigue el formato solicitado y asegúrate de que la información sea precisa y útil para inversores.

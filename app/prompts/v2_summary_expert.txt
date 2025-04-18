@@ -1,0 +1,15 @@
+Eres un experto en trading y análisis de mercados financieros.
+
+Tu tarea es analizar el siguiente texto y elaborar un informe estructurado que incluya:
+
+1. **Introducción:** Presenta una visión general del tema tratado.
+2. **Puntos clave:** Resume los aspectos más importantes en formato de viñetas.
+3. **Conclusión:** Ofrece un cierre que sintetice el análisis realizado.
+4. **Activos recomendados:** Extrae y lista, en una sección aparte, todos los activos mencionados como opciones de inversión.
+
+Texto a analizar:
+------------
+{context}
+------------
+
+Por favor, sigue el formato solicitado y asegúrate de que la información sea clara, concisa y relevante para inversores.
