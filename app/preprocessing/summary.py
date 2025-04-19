@@ -68,41 +68,22 @@ class SummaryProccesing:
         return df
 
     # Function to extract the key terms from the 'summary' column
-    def _extract_key_terms(self,text):
-        if '\n\n**Activos mencionados para invertir**\n\n' in text:
-            key_terms =  text.split('\n\n**Activos mencionados para invertir**\n\n')[-1].replace('- ', '')
-        elif '\n\n**Activos Mencionados para Invertir**\n\n' in text:
-            key_terms =  text.split('\n\n**Activos Mencionados para Invertir**\n\n')[-1].replace('- ', '')
-        elif '\n\n**\n\n**Lista de activos mencionados para invertir**\n\n' in text:
-            key_terms = text.split('\n\n**Lista de activos mencionados para invertir**\n\n')[-1].replace('- ', '')
-        elif '\n\n**Lista de Activos Mencionados para Invertir**\n\n' in text:
-            key_terms =  text.split('\n\n**Lista de Activos Mencionados para Invertir**\n\n')[-1].replace('- ', '')
-        elif '\n\n**Lista de activos mencionados para invertir**\n\n' in text:
-            key_terms =  text.split('\n\n**Lista de activos mencionados para invertir**\n\n')[-1].replace('- ', '')
-        elif '\n\n**Lista de activos mencionados para invertir:**\n\n' in text:
-            key_terms =  text.split('\n\n**Lista de activos mencionados para invertir:**\n\n')[-1].replace('- ', '')
-        elif '\n\n**Activos mencionados para invertir:**\n\n' in text:
-            key_terms =  text.split('\n\n**Activos mencionados para invertir:**\n\n')[-1].replace('- ', '')
-        elif '\n\n**Activos mencionados para invertir:**\n' in text:
-            key_terms =  text.split('\n\n**Activos mencionados para invertir:**\n')[-1].replace('- ', '')
-        elif '\n\n**Activos Mencionados para Invertir**\n' in text:
-            key_terms =  text.split('\n\n**Activos Mencionados para Invertir**\n')[-1].replace('- ', '')
-        elif '\n\n**Lista de Activos para Invertir**\n\n' in text:
-            key_terms =  text.split('\n\n**Lista de Activos para Invertir**\n\n')[-1].replace('- ', '')
-        elif '\n\n**Lista de Activos Mencionados para Invertir:**\n' in text:
-            key_terms =  text.split('\n\n**Lista de Activos Mencionados para Invertir:**\n')[-1].replace('- ', '')
-        elif '\n\n**Activos Mencionados para Invertir:**\n' in text:
-            key_terms =  text.split('\n\n**Activos Mencionados para Invertir:**\n')[-1].replace('- ', '')
-        else:
+    @staticmethod
+    def _extract_key_terms(text):
+        # Buscar el encabezado "Activos recomendados" con cualquier texto entre paréntesis o después de dos puntos
+        match = re.search(r'Activos recomendados(?:\s*\([^)]+\))?\s*:?\**\n?', text, re.IGNORECASE)
+        if not match:
             return None
-        if '**Introducción**' in key_terms:
-            return None
-        # Eliminar números con punto, espacios al inicio y al final
-        key_terms = re.sub(r'\d+\.', '', key_terms).strip()
-        #key_terms = re.sub(r'^\s*\d+\.\s*|\s*\d+\.\s*|\s{2,}', ' ', key_terms).strip()
-
-        # Finalmente, dividir en la lista de términos
-        return key_terms.split('\n') if key_terms else None
+        # Extraer el texto después del encabezado
+        key_terms = text[match.end():]
+        # Eliminar los guiones y números
+        key_terms = re.sub(r'-\s*', '', key_terms)
+        key_terms = re.sub(r'\d+\.', '', key_terms)
+        # Tomar solo hasta el primer salto de línea doble (fin de la lista)
+        key_terms = key_terms.split('\n\n')[0].strip()
+        # Dividir en líneas y limpiar
+        terms = [term.strip() for term in key_terms.split('\n') if term.strip()]
+        return terms if terms else None
 
     def extract_key_terms_from_df(self, df_in, column_name='summary'):
         """
