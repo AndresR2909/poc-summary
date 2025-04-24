@@ -34,7 +34,6 @@ class Llm:
             self.model = config.get('model', 'gpt-4o-mini')
             self.temperature = config.get('temperature', 0)
             self.max_completion_tokens = config.get('max_tokens')
-            self.model = config.get('model')
             self.llm = ChatOpenAI(
                 model=self.model,
                 temperature=self.temperature,
