@@ -54,6 +54,9 @@ Readme.md
 2. **Generación de Datasets:** Creación de resúmenes con LLMs grandes (GPT-4.1, GPT-4o) para usar como referencia y entrenamiento.
 3. **Fine-Tuning:** Ajuste supervisado de SLMs con los datasets generados.
 4. **Evaluación:** Comparación de resúmenes generados por SLMs vs. referencia usando métricas automáticas y evaluación con otro LLM.
+
+ ![evaluation](image.png)
+
 5. **Despliegue y Uso:** Interfaz para generar resúmenes y tablero MLflow para seguimiento de experimentos.
 
 ---
@@ -71,6 +74,8 @@ Readme.md
 
 - [`train_deploy_litgpt.ipynb`](notebooks/train_deploy_litgpt.ipynb):
   **Funcionalidad:** Fine-tuning supervisado de modelos Llama 3.2-1B y 3B usando LoRA y QLoRA, conversión de datasets a formato JSON, merge de pesos y despliegue.
+
+['Repo espacio de trabajo lightning.ai']()
 
 - [`evaluate_summary.ipynb`](notebooks/evaluate_summary.ipynb):
   **Funcionalidad:** Evaluación de resúmenes generados por SLMs usando métricas automáticas, embeddings y evaluación con otro LLM (GPT-4.1).
@@ -99,6 +104,22 @@ Para correr la interfaz que permite generar resúmenes y obtener reportes de mé
 ```bash
 streamlit run app/main_interface.py
 ```
+
+![dataset test](image-1.png)
+
+![metricas evaluacion](image-2.png)
+
+![Score](image-6.png)
+
+![grafica coseno](image-4.png)
+
+![criterial score](image-5.png)
+
+```bash
+streamlit run app/main_interface.py
+```
+
+
 
 ---
 
