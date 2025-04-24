@@ -1,67 +1,111 @@
-# Notebooks de POC Summary
+# POC Summary
 
-Este proyecto contiene el codigo y notebooks que documentan las etapas del procesamiento, resumen y evaluación de SLMs para generar un resumen con un formato especifico de reporte de transcripciones de videos de youtube donde se realizan analisis tecnicos y fundamentales de trading.
+Este proyecto contiene el código y notebooks que documentan las etapas de procesamiento, generación de datasets con resúmenes de transcripciones de videos y evaluación de resultados con SLMs para generar reportes estructurados a partir de videos de YouTube sobre análisis técnico y fundamental de trading.
 
-## Índice de Notebooks
+---
 
-- [run_etl.ipynb](notebook/run_etl.ipynb):
-  **Funcionalidad:**
-  Demuestra el proceso de preprocesamiento de los datos de entrada. Incluye limpieza de textos, normalización y preparación del dataset con los datos ingestados de las trnacripciones de los videos. Se realiza el movimiento de archivos desde la zona landing a la zona curated del datalake.
+## Tabla de Contenidos
 
-- [create_summaries.ipynb](notebook/create_summaries.ipynb):
-- [create_summaries_v2.ipynb](notebooks/create_summaries_v2.ipynb):
-  **Funcionalidad:**
- crear dataset de resumenes de transcripciones de videos usando modelo fundacional LLM gpt4o y gpt4.1(Destilación de conocimiento: usado para hacer transferencia de conocimiento a SLM)
+- [Descripción General](#descripción-general)
+- [Estructura del Proyecto](#estructura-del-proyecto)
+- [Flujo de Trabajo](#flujo-de-trabajo)
+- [Notebooks Principales](#notebooks-principales)
+- [Modelos Finetuneados](#modelos-finetuneados)
+- [Ejecución de la Interfaz](#ejecución-de-la-interfaz)
+- [Seguimiento de Experimentos con MLflow](#seguimiento-de-experimentos-con-mlflow)
 
-[dataset v1 de entrenaminto en huggingface](hhttps://huggingface.co/datasets/AndresR2909/youtube_transcriptions_summaries_2025_gpt4o/)
-[dataset  v2 de entrenaminto(90%) y test(10%) en huggingface](https://huggingface.co/datasets/AndresR2909/youtube_transcriptions_summaries_2025_gpt4.1/)
+---
 
-La destilación de conocimiento implica transferir los aprendizajes de un "modelo maestro" gpt4.1 preentrenado a un "modelo estudiante" en este caso llama 3.2 instruct de 1B y 3B de parametros.
+## Descripción General
 
+El objetivo es ajustar modelos SLM (Small Language Models) como Llama 3.2-1B y 3B para generar resúmenes precisos y contextuales de transcripciones de videos, usando instrucciones específicas y formatos de reporte. El pipeline incluye preprocesamiento, generación de datasets, fine-tuning, evaluación y despliegue.
 
-- [train_deploy_litgpt.ipynb](notebook/train_deploy_litgpt.ipynb):
-  **Funcionalidad:**
+---
 
-proceso de **Supervised Fine-Tuning (SFT)** de un modelo Llama 3.2-3B-Instruct, adaptándolo para tareas de resumen automático a partir de transcripciones de videos de YouTube. Aprenderás a preparar datos reales, ajustar el modelo y evaluar su desempeño en generación de resúmenes.
+## Estructura del Proyecto
 
-### Objetivo:
-Ajustar el modelo **Llama 3.2-3B-Instruct** para que genere resúmenes precisos y contextuales a partir de transcripciones de videos, usando instrucciones específicas.
+```
+app/
+  main_interface.py
+  llm/
+  preprocessing/
+  prompts/
+  storage/
+data/
+  ...
+notebooks/
+  run_etl.ipynb
+  create_summaries.ipynb
+  create_summaries_v2.ipynb
+  summary_with_slm.ipynb
+  train_deploy_litgpt.ipynb
+  evaluate_summary.ipynb
+  test_mlflow.ipynb
+requirements.txt
+Readme.md
+...
+```
 
-Convertir dataset creado en HuginFace a Formato json de entrada, instruccion, salida para usarlo en el finetuning del modelo.
-Finetuning de modelos SLM llama 3.2 intruct 1b y 3b usando Lora y Qlora
-Merge Lora Weights
-Deploy
-Subir modelos a HuggingFace (para desplegarlo con ollama y poderlo usar en aplicacion local)
+---
 
-[llama-3.2-3b-finetuned_bnb_nf4](https://huggingface.co/AndresR2909/hf-llama-3.2-3b-finetuned_bnb_nf4)
+## Flujo de Trabajo
 
-[llama-3.2-1b-finetuned_v5](https://huggingface.co/AndresR2909/hf-llama-3.2-1b-finetuned_v5)
+1. **Preprocesamiento y ETL:** Limpieza y normalización de transcripciones.
+2. **Generación de Datasets:** Creación de resúmenes con LLMs grandes (GPT-4.1, GPT-4o) para usar como referencia y entrenamiento.
+3. **Fine-Tuning:** Ajuste supervisado de SLMs con los datasets generados.
+4. **Evaluación:** Comparación de resúmenes generados por SLMs vs. referencia usando métricas automáticas y evaluación con otro LLM.
+5. **Despliegue y Uso:** Interfaz para generar resúmenes y tablero MLflow para seguimiento de experimentos.
 
+---
 
-[llama-3.2-3b-finetuned_bnb_nf4_v2](https://huggingface.co/AndresR2909/hf-llama-3.2-3b-finetuned_bnb_nf4_v2)
+## Notebooks Principales
 
-- [summary_with_slm.ipynb](notebook/summary_with_slm.ipynb):
-**Funcionalidad:**
-crear resumenes con diferentes SLMs, prompts zero an one shot y con los SLMs finetuneados
+- [`run_etl.ipynb`](notebooks/run_etl.ipynb):
+  **Funcionalidad:** Preprocesamiento de datos de entrada, limpieza de textos y preparación del dataset.
 
-- [evaluate_summary.ipynb](notebook/evaluate_summary.ipynb):
-**Funcionalidad:**
-evaluar los resultados con diferentes modelos usando metricas basadas en embedings y score con otro LLM como evaluador(GPT4.1) y usando el framework mlflow para el tracking de los experimentos
+- [`create_summaries.ipynb`](notebooks/create_summaries.ipynb) y [`create_summaries_v2.ipynb`](notebooks/create_summaries_v2.ipynb):
+  **Funcionalidad:** Generación de resúmenes de transcripciones usando modelos LLM fundacionales (GPT-4o, GPT-4.1) para destilación de conocimiento.
 
-- [test_mlflow.ipynb](notebook/test_mlflow.ipynb):
-**Funcionalidad:**
-revisar resultados de run experimentos cargado parametros y logs para comparar
+- [`summary_with_slm.ipynb`](notebooks/summary_with_slm.ipynb):
+  **Funcionalidad:** Generación de resúmenes con diferentes SLMs, prompts (zero/one shot) y modelos finetuneados.
 
+- [`train_deploy_litgpt.ipynb`](notebooks/train_deploy_litgpt.ipynb):
+  **Funcionalidad:** Fine-tuning supervisado de modelos Llama 3.2-1B y 3B usando LoRA y QLoRA, conversión de datasets a formato JSON, merge de pesos y despliegue.
 
+- [`evaluate_summary.ipynb`](notebooks/evaluate_summary.ipynb):
+  **Funcionalidad:** Evaluación de resúmenes generados por SLMs usando métricas automáticas, embeddings y evaluación con otro LLM (GPT-4.1).
 
-## Ejecución de la interfaz
+- [`test_mlflow.ipynb`](notebooks/test_mlflow.ipynb):
+  **Funcionalidad:** Revisión y comparación de resultados de experimentos registrados en MLflow.
 
-Para correr la interfaz que permite generar resúmenes y obtener reportes de métricas, ejecuta el siguiente comando en la terminal:
+---
+
+## Modelos Finetuneados
+
+- [llama-3.2-1b-finetuned_v5](https://huggingface.co/AndresR2909/hf-llama-3.2-1b-finetuned_v5)
+- [llama-3.2-3b-finetuned_bnb_nf4](https://huggingface.co/AndresR2909/hf-llama-3.2-3b-finetuned_bnb_nf4)
+- [llama-3.2-3b-finetuned_bnb_nf4_v2](https://huggingface.co/AndresR2909/hf-llama-3.2-3b-finetuned_bnb_nf4_v2)
+
+Datasets en HuggingFace:
+- [youtube_transcriptions_summaries_2025_gpt4.1](https://huggingface.co/datasets/AndresR2909/youtube_transcriptions_summaries_2025_gpt4.1)
+- [youtube_transcriptions_summaries_2025_gpt4o](https://huggingface.co/datasets/AndresR2909/youtube_transcriptions_summaries_2025_gpt4o/)
+
+---
+
+## Ejecución de la Interfaz
+
+Para correr la interfaz que permite generar resúmenes y obtener reportes de métricas:
 
 ```bash
 streamlit run app/main_interface.py
 ```
-## Ejecucion de tablero de mlflow para seguimiento de experimentos
+
+---
+
+## Seguimiento de Experimentos con MLflow
+
+Para lanzar el tablero de MLflow y visualizar los experimentos:
+
 ```bash
 mlflow ui --port 5000
 ```
