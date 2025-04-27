@@ -66,7 +66,7 @@ class YoutubeIngest:
                     video_list.append(video)
                     logging.info(f"Ingesting data from {video_id}")
         else:
-            logging.error(f"No se pudo obtener el channel_id de {channel}-{video_id}")
+            logging.error(f"No se pudo obtener el channel_id de {channel}")
         return video_list
 
     @staticmethod
