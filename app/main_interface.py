@@ -25,6 +25,7 @@ client = mlflow.tracking.MlflowClient()
 
 yt = YoutubeIngest()
 
+
 def generate_summary(text, model: list, prompt: list):
     """Genera un resumen utilizando un modelo SLM y una version de prompt"""
     llm_config = {
@@ -35,6 +36,7 @@ def generate_summary(text, model: list, prompt: list):
     summary_llm = SummaryLlm(config=llm_config, prompt_name=prompt)
     summary = summary_llm.summarize(text)
     return summary
+
 
 def generate_summary_from_url(url_video: str, model: str, prompt: str):
     """Genera un resumen utilizando un modelo SLM y una version de prompt"""
@@ -83,23 +85,68 @@ modo = st.sidebar.radio(
 ###################################################
 if modo == '🤖 Reporte video':
     st.title('🤖 Asistente de reporte videos')
-    sel_columns = ['videoId','title','publishTime','videoUrl','duration']
+    sel_columns = ['videoId', 'title', 'publishTime', 'videoUrl', 'duration']
     # Listar ultimos videos de los canales en yt.channels
-    st.subheader('Videos disponibles por canal (ultimo dia)')
-    for channel_name in yt.channels:
-        df = pd.DataFrame(yt.get_last_videos_metadata_from_channels(channel_name,daysback=1))
-        if len(df)>0:
-            st.markdown(f"**{channel_name}**")
-            st.dataframe(df[sel_columns])
 
-    # Entrada de enlace de YouTube
+    #daysback = st.selectbox("Selecciona dias de busqueda :", ["1", "7", "14"])
+    #int_daysback = int(daysback)
+    st.subheader(f"Videos disponibles por canal (últimos 7 días)")
+
+    # Usar st.session_state para cachear los resultados y evitar recargas innecesarias
+    if 'videos_metadata' not in st.session_state:
+        st.session_state['videos_metadata'] = {}
+
+    if st.button('Cargar videos recientes de los canales'):
+        st.session_state['videos_metadata'] = {}
+        for channel_name in yt.channels:
+            df = pd.DataFrame(
+                yt.get_last_videos_metadata_from_channels(
+                    channel_name, daysback=7,
+                ),
+            )
+            if len(df) > 0:
+                st.session_state['videos_metadata'][channel_name] = df[sel_columns]
+
+    # Mostrar los datos si ya están cargados
+    if st.session_state['videos_metadata']:
+        for channel_name, df in st.session_state['videos_metadata'].items():
+            st.markdown(f"**{channel_name}**")
+            st.dataframe(df)
+
+    # Entrada de enlace de YouTube o selección desde la tabla
     youtube_url = st.text_input('Ingresa el enlace del video de YouTube:')
 
+    # Si hay videos cargados, permitir seleccionar uno de la tabla
+    all_video_urls = []
+    for df in st.session_state['videos_metadata'].values():
+        if 'videoUrl' in df.columns:
+            all_video_urls.extend(df['videoUrl'].tolist())
+
+    if all_video_urls:
+        selected_url = st.selectbox(
+            'O selecciona un video de la lista:',
+            [''] + all_video_urls,
+            index=0,
+        )
+        # Si selecciona uno de la lista, sobrescribe el valor del input manual
+        if selected_url:
+            youtube_url = selected_url
+
     # Selección de modelo y prompt
-    #model = st.selectbox("Selecciona el modelo LLM:", ["llama3", "llama2"])
-    #prompt = st.selectbox("Selecciona la versión del prompt:", ["v1", "v2"])
-    model = 'phi4:latest'
-    prompt = 'v1_summary_expert'
+    model = st.selectbox(
+        'Selecciona el modelo LLM:',
+        [
+            'phi4:latest',
+            'hf.co/AndresR2909/unsloth_Meta-Llama-3.1-8B-Instruct-bnb-4bit_gguf:Q8_0',
+            'hf.co/AndresR2909/llama-3.2-3b-finetuned_qlora_bnb_nf4_v2-gguf_q8_0:latest',
+        ],
+    )
+    prompt = st.selectbox(
+        'Selecciona la versión del prompt:',
+        ['v1_summary_expert', 'v1_summary_expert_one_shot'],
+    )
+    # model = 'phi4:latest'
+    # prompt = 'v1_summary_expert'
 
     if st.button('Generar resumen'):
         if not youtube_url:
@@ -117,7 +164,9 @@ elif modo == '📊 Métricas':
     st.title('📈 Resultados de Evaluación')
     # Cargamos experimentos que comiencen con "eval_"
     experiments = [
-        exp for exp in client.search_experiments() if exp.name.startswith('report_summary')
+        exp
+        for exp in client.search_experiments()
+        if exp.name.startswith('report_summary')
     ]
 
     if not experiments:
@@ -133,7 +182,7 @@ elif modo == '📊 Métricas':
         order_by=[
             'start_time DESC',
         ],
-        max_results = 20000,
+        max_results=20000,
     )
 
     if not runs:
@@ -167,7 +216,15 @@ elif modo == '📊 Métricas':
     st.subheader('Dataset de test')
 
     df_grouped = (
-        df.drop(columns=['criterial_score','embedding_cosine_distance','model', 'prompt_version','score'])
+        df.drop(
+            columns=[
+                'criterial_score',
+                'embedding_cosine_distance',
+                'model',
+                'prompt_version',
+                'score',
+            ],
+        )
         .groupby(['channel_name'])
         .count()
         .reset_index()
@@ -175,7 +232,7 @@ elif modo == '📊 Métricas':
     st.dataframe(df_grouped)
 
     df_grouped = (
-        df.drop(columns=['criterial_score','embedding_cosine_distance','score'])
+        df.drop(columns=['criterial_score', 'embedding_cosine_distance', 'score'])
         .groupby(['model', 'prompt_version'])
         .count()
         .reset_index()
@@ -208,7 +265,7 @@ elif modo == '📊 Métricas':
         'Selecciona los criterios que deseas comparar',
         metric_choices,
         # Por defecto mostrar correctness vs hallucination
-        default=['score', 'embedding_cosine_distance','criterial_score'],
+        default=['score', 'embedding_cosine_distance', 'criterial_score'],
     )
 
     if selected_metrics:
@@ -226,9 +283,8 @@ elif modo == '📊 Métricas':
         # Mostramos cada métrica seleccionada en un gráfico independiente
         if selected_metrics:
             st.subheader(
-            'Promedio de métricas seleccionadas por configuración (gráficas independientes)',
+                'Promedio de métricas seleccionadas por configuración (gráficas independientes)',
             )
-
 
             for metric in selected_metrics:
                 st.markdown(
@@ -278,10 +334,12 @@ elif modo == '📊 Artefactos Razonamiento evaluación':
         'criterial_score',
     ]
 
-    #client = mlflow.tracking.MlflowClient()
+    # client = mlflow.tracking.MlflowClient()
     # Cargamos experimentos que comiencen con "eval_"
     experiments = [
-        exp for exp in client.search_experiments() if exp.name.startswith('report_summary')
+        exp
+        for exp in client.search_experiments()
+        if exp.name.startswith('report_summary')
     ]
 
     if not experiments:
