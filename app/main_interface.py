@@ -16,10 +16,14 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from app.llm.llm import SummaryLlm
 import altair as alt
+from app.youtube_ingest import YoutubeIngest
 
 
 # fmt: on
+client = mlflow.tracking.MlflowClient()
 
+
+yt = YoutubeIngest()
 
 def generate_summary(text, model: list, prompt: list):
     """Genera un resumen utilizando un modelo SLM y una version de prompt"""
@@ -31,6 +35,25 @@ def generate_summary(text, model: list, prompt: list):
     summary_llm = SummaryLlm(config=llm_config, prompt_name=prompt)
     summary = summary_llm.summarize(text)
     return summary
+
+def generate_summary_from_url(url_video: str, model: str, prompt: str):
+    """Genera un resumen utilizando un modelo SLM y una version de prompt"""
+    from app.llm.llm import SummaryLlm
+
+    llm_config = {
+        'type': 'ollama',
+        'model': model,
+        'base_url': 'http://localhost:11434',
+    }
+    # cargar llm con prompt
+    summary_llm = SummaryLlm(config=llm_config, prompt_name=prompt)
+    # sacar id del video
+    sel_video_id = yt.extract_video_id_from_url(url_video)
+    # optener trasncripcion
+    transcription = yt.get_transcript_by_id(video_id=sel_video_id)
+    # generar reporte
+    report = summary_llm.summarize(transcription)
+    return report
 
 
 def load_text_artifact(run_id, artifact_path):
@@ -49,43 +72,49 @@ def load_text_artifact(run_id, artifact_path):
 modo = st.sidebar.radio(
     'Selecciona una vista:',
     [
-        '🤖 Chatbot',
+        '🤖 Reporte video',
         '📊 Métricas',
         '📊 Razonamientos evaluación',
     ],
 )
 
 ###################################################
-# Sección de Chatbot
+# Sección Reporte video
 ###################################################
-if modo == '🤖 Chatbot':
+if modo == '🤖 Reporte video':
     st.title('🤖 Asistente de reporte videos')
+    sel_columns = ['videoId','title','publishTime','videoUrl','duration']
+    # Listar ultimos videos de los canales en yt.channels
+    st.subheader('Videos disponibles por canal (ultimo dia)')
+    for channel_name in yt.channels:
+        df = pd.DataFrame(yt.get_last_videos_metadata_from_channels(channel_name,daysback=1))
+        if len(df)>0:
+            st.markdown(f"**{channel_name}**")
+            st.dataframe(df[sel_columns])
 
-    pregunta = st.text_input('Ingresa url del video para generar reporte:')
+    # Entrada de enlace de YouTube
+    youtube_url = st.text_input('Ingresa el enlace del video de YouTube:')
 
-    if 'chat_history' not in st.session_state:
-        st.session_state.chat_history = []
+    # Selección de modelo y prompt
+    #model = st.selectbox("Selecciona el modelo LLM:", ["llama3", "llama2"])
+    #prompt = st.selectbox("Selecciona la versión del prompt:", ["v1", "v2"])
+    model = 'phi4:latest'
+    prompt = 'v1_summary_expert'
 
-    # if pregunta:
-    #     with st.spinner('Consultando documentos...'):
-    #         result = chain.invoke(
-    #             {'question': pregunta, 'chat_history': st.session_state.chat_history},
-    #         )
-    #         st.session_state.chat_history.append((pregunta, result['answer']))
-
-    if st.session_state.chat_history:
-        for q, a in reversed(st.session_state.chat_history):
-            st.markdown(f"**👤 Usuario:** {q}")
-            st.markdown(f"**🤖 Bot:** {a}")
-            st.markdown('---')
-
-###################################################
-# Sección de Métricas
-###################################################
+    if st.button('Generar resumen'):
+        if not youtube_url:
+            st.warning('Por favor ingresa un enlace de YouTube.')
+        else:
+            try:
+                with st.spinner('Generando resumen...'):
+                    resumen = generate_summary_from_url(youtube_url, model, prompt)
+                    st.subheader('Resumen generado:')
+                    st.write(resumen)
+            except Exception as e:
+                st.error(f"Error al extraer y generar reporte del video: {e}")
+                resumen = None
 elif modo == '📊 Métricas':
     st.title('📈 Resultados de Evaluación')
-
-    client = mlflow.tracking.MlflowClient()
     # Cargamos experimentos que comiencen con "eval_"
     experiments = [
         exp for exp in client.search_experiments() if exp.name.startswith('report_summary')
@@ -249,7 +278,7 @@ elif modo == '📊 Artefactos Razonamiento evaluación':
         'criterial_score',
     ]
 
-    client = mlflow.tracking.MlflowClient()
+    #client = mlflow.tracking.MlflowClient()
     # Cargamos experimentos que comiencen con "eval_"
     experiments = [
         exp for exp in client.search_experiments() if exp.name.startswith('report_summary')
