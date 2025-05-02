@@ -150,7 +150,7 @@ class YoutubeIngest:
             logging.info(f"Se encontraron {len(video_list)} videos")
         else:
             logging.DEBUG(
-                'Error al obtener los datos:', response.status_code, response.text,
+                'Error al obtener los datos:', response.status_code, response,#.text,
             )
         return video_list
 
