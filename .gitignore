@@ -1,5 +1,9 @@
+slm_summaries
+slm_sumaries_training
+summaries
+summaries_v3
 /mlruns
-*.csv
+#*.csv
 .venv
 .vscode
 # Byte-compiled / optimized / DLL files
