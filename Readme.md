@@ -18,7 +18,7 @@ Este proyecto contiene el código y notebooks que documentan las etapas de proce
 
 ## Descripción General
 
-El objetivo es ajustar modelos SLM (Small Language Models) como Llama 3.2-1B y 3B para generar resúmenes precisos y contextuales de transcripciones de videos, usando instrucciones específicas y formatos de reporte. El pipeline incluye preprocesamiento, generación de datasets, fine-tuning, evaluación y despliegue.
+El objetivo es ajustar modelos SLM (Small Language Models) como Llama 3.2-1B-3B y Llama 3.1-8B usando tecnicas PEFT como LoRA y QLoRA para generar resúmenes precisos y contextuales de transcripciones de videos, usando instrucciones específicas y un formato especifico de reporte. El pipeline incluye preprocesamiento, generación de datasets, fine-tuning, evaluación y despliegue.
 
 ---
 
@@ -26,25 +26,31 @@ El objetivo es ajustar modelos SLM (Small Language Models) como Llama 3.2-1B y 3
 
 ```
 app/
-  main_interface.py
-  llm/
+  main_interface.py         # Interfaz principal Streamlit
+  llm/                     # Utilidades y wrappers para modelos de lenguaje
   preprocessing/
-  prompts/
+    etl_process.py         # Proceso ETL y preprocesamiento de datos
+    data_preprocessing.py  # Funciones de limpieza y normalización
+  prompts/                 # Prompts y plantillas para LLMs
   storage/
+    blob_storage.py        # Manejo de blobs y almacenamiento
+    data_lake_pandas.py    # Utilidades para Data Lake con pandas
+    data_lake_storage.py   # Funciones de almacenamiento en Data Lake
 data/
-  ...
+  ...                      # Datos de entrada y salida
 notebooks/
-  run_etl.ipynb
-  create_summaries.ipynb
+  run_etl.ipynb                    # Pipeline ETL y preprocesamiento
+  create_summaries.ipynb           # Generación de resúmenes con LLMs
   create_summaries_v2.ipynb
-  summary_with_slm.ipynb
-  train_deploy_litgpt.ipynb
-  evaluate_summary.ipynb
-  test_mlflow.ipynb
+  summary_with_slm.ipynb           # Resúmenes con SLMs y prompts
+  train_deploy_litgpt.ipynb        # Fine-tuning y despliegue de modelos
+  Llama3_1_8B_transcriptions_summaries_v2.ipynb # Fine-tuning
+  Llama3_1_8B_transcriptions_summaries_v2-2.ipynb # Fine-tuning
+  evaluate_summary.ipynb           # Evaluación de resúmenes y métricas
+  test_mlflow.ipynb                # Comparación de experimentos MLflow
 requirements.txt
 Readme.md
 ...
-```
 
 ---
 
@@ -52,10 +58,18 @@ Readme.md
 
 1. **Preprocesamiento y ETL:** Limpieza y normalización de transcripciones.
 2. **Generación de Datasets:** Creación de resúmenes con LLMs grandes (GPT-4.1, GPT-4o) para usar como referencia y entrenamiento.
+
+![generar dataset](image-7.png)
+
 3. **Fine-Tuning:** Ajuste supervisado de SLMs con los datasets generados.
+
+![ajuste fino del modelo con LoRa](image-8.png)
+
 4. **Evaluación:** Comparación de resúmenes generados por SLMs vs. referencia usando métricas automáticas y evaluación con otro LLM.
 
- ![evaluation](image.png)
+![evaluation](image.png)
+
+![alt evaluacion](image-9.png)
 
 5. **Despliegue y Uso:** Interfaz para generar resúmenes y tablero MLflow para seguimiento de experimentos.
 
