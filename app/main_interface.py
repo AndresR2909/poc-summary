@@ -145,11 +145,12 @@ if modo == '🤖 Reporte video':
             'phi4:latest',
             'hf.co/AndresR2909/unsloth_Meta-Llama-3.1-8B-Instruct-bnb-4bit_gguf:Q8_0',
             'hf.co/AndresR2909/llama-3.2-3b-finetuned_qlora_bnb_nf4_v2-gguf_q8_0:latest',
+            'hf.co/AndresR2909/unsloth_Meta-Llama-3.1-8B-Instruct-bnb-4bit_gguf_v3:Q8_0',
         ],
     )
     prompt = st.selectbox(
         'Selecciona la versión del prompt:',
-        ['v1_summary_expert', 'v1_summary_expert_one_shot'],
+        ['v3_summary_expert', 'v1_summary_expert_one_shot'],
     )
     # model = 'phi4:latest'
     # prompt = 'v1_summary_expert'
@@ -210,14 +211,40 @@ elif modo == '📊 Métricas':
         }
         data.append(dict_metrics)
 
+
     # Creamos un dataframe con todos los datos
     df = pd.DataFrame(data)
+    sel_models = [
+        'unsloth_Meta_Llama_3_1_8B_Instruct_bnb_4bit_gguf2_Q4_k_m',
+        'phi4_latest',
+        'unsloth_Meta_Llama_3_1_8B_Instruct_bnb_4bit_gguf3_Q4_k_m',
+        'unsloth_Meta_Llama_3_1_8B_Instruct_bnb_4bit_gguf3_Q8_0',
+        'unsloth_Meta_Llama_3_1_8B_Instruct_bnb_4bit_gguf2_Q8_0',
+        'llama3_1_8b_instruct_fp16',
+        'llama3_2_3b_instruct_fp16',
+        'gpt_4o_mini',
+        'llama_3_2_3b_finetuned_qlora_bnb_nf42_gguf_q8_0_latest',
+    ]
+
+    df_sel = df[df['model'].isin(sel_models)]
+
+    # Diccionario de reemplazo de nombres de modelos
+    model_name_map = {
+    'unsloth_Meta_Llama_3_1_8B_Instruct_bnb_4bit_gguf2_Q4_k_m':'finetune_qlora_unsloth_llama_3_1_8B_Instruct_bnb_4bit_v2_Q4_k_m',
+    'unsloth_Meta_Llama_3_1_8B_Instruct_bnb_4bit_gguf3_Q4_k_m':'finetune_qlora_unsloth_llama_3_1_8B_Instruct_bnb_4bit_v3_Q4_k_m',
+    'unsloth_Meta_Llama_3_1_8B_Instruct_bnb_4bit_gguf3_Q8_0':'finetune_qlora_unsloth_llama_3_1_8B_Instruct_bnb_4bit_v3_Q8_0',
+    'unsloth_Meta_Llama_3_1_8B_Instruct_bnb_4bit_gguf2_Q8_0':'finetune_qlora_unsloth_llama_3_1_8B_Instruct_bnb_4bit_v2_Q8_0',
+    'llama_3_2_3b_finetuned_qlora_bnb_nf42_gguf_q8_0_latest': 'finetune_qlora_litgpt_llama_3_2_3b_bnb_nf4_v2_q8_0',
+    }
+
+    # Reemplazar en la columna 'model' de df_sel
+    df_sel['model'] = df_sel['model'].replace(model_name_map)
 
     # Datos de test
     st.subheader('Dataset de test')
 
     df_grouped = (
-        df.drop(
+        df_sel.drop(
             columns=[
                 'criterial_score',
                 'embedding_cosine_distance',
@@ -272,7 +299,7 @@ elif modo == '📊 Métricas':
     if selected_metrics:
         # Agrupamos por Prompt y Chunk Size para mostrar promedios
         grouped = (
-            df.groupby(['model', 'prompt_version'])
+            df_sel.groupby(['model', 'prompt_version'])
             .agg({metric: 'mean' for metric in selected_metrics})
             .reset_index()
         )

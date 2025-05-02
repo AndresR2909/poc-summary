@@ -51,7 +51,7 @@ notebooks/
 requirements.txt
 Readme.md
 ...
-
+```
 ---
 
 ## Flujo de Trabajo
@@ -137,14 +137,13 @@ streamlit run app/main_interface.py
 
 ![dataset test](image-1.png)
 
-![metricas evaluacion](image-2.png)
+![metricas-evaluación](image-4.png)
 
-![Score](image-6.png)
+![metricas-evaluación](image-2.png)
 
-![grafica coseno](image-4.png)
+![evaluación online](image-5.png)
 
-![criterial score](image-5.png)
-
+![evaluación online](image-6.png)
 
 
 ---
