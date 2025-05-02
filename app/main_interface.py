@@ -25,6 +25,12 @@ client = mlflow.tracking.MlflowClient()
 
 yt = YoutubeIngest()
 
+experiments = [
+    exp
+    for exp in client.search_experiments()
+    if exp.name.startswith('report_summary')
+]
+exp_names = [exp.name for exp in experiments]
 
 def generate_summary(text, model: list, prompt: list):
     """Genera un resumen utilizando un modelo SLM y una version de prompt"""
@@ -163,17 +169,12 @@ if modo == '🤖 Reporte video':
 elif modo == '📊 Métricas':
     st.title('📈 Resultados de Evaluación')
     # Cargamos experimentos que comiencen con "eval_"
-    experiments = [
-        exp
-        for exp in client.search_experiments()
-        if exp.name.startswith('report_summary')
-    ]
 
     if not experiments:
         st.warning('No se encontraron experimentos de evaluación.')
         st.stop()
 
-    exp_names = [exp.name for exp in experiments]
+
     selected_exp = st.selectbox('Selecciona un experimento:', exp_names)
 
     experiment = client.get_experiment_by_name(selected_exp)
