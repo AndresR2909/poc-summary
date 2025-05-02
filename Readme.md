@@ -75,21 +75,24 @@ Readme.md
 - [`train_deploy_litgpt.ipynb`](notebooks/train_deploy_litgpt.ipynb):
   **Funcionalidad:** Fine-tuning supervisado de modelos Llama 3.2-1B y 3B usando LoRA y QLoRA, conversión de datasets a formato JSON, merge de pesos y despliegue.
 
-['Repo espacio de trabajo lightning.ai']()
+- [`Llama3_1_8B_transcriptions_summaries_v2.ipynb`](notebooks/Llama3_1_8B_transcriptions_summaries_v2.ipynb)
+- [`Llama3_1_8B_transcriptions_summaries_v2-2.ipynb`](notebooks/Llama3_1_8B_transcriptions_summaries_v2-2.ipynb)
+**Funcionalidad:** Fine-tuning supervisado de modelos Llama 3.1-8B usando QLoRA mediante la libreria Unsloth para optimizar uso de memoria GPU, conversión de datasets a formato de instruccion, merge de pesos y despliegue en HF (se usaron do secuencias maximas de longitud 'max_seq_length'(8192 y 16384) ).
 
 - [`evaluate_summary.ipynb`](notebooks/evaluate_summary.ipynb):
   **Funcionalidad:** Evaluación de resúmenes generados por SLMs usando métricas automáticas, embeddings y evaluación con otro LLM (GPT-4.1).
 
 - [`test_mlflow.ipynb`](notebooks/test_mlflow.ipynb):
-  **Funcionalidad:** Revisión y comparación de resultados de experimentos registrados en MLflow.
+  **Funcionalidad:** Comparación de metricas de experimentos registrados en MLflow con diferentes modelos, prompts y ajustes finos (QLoRA).
 
 ---
 
 ## Modelos Finetuneados
 
 - [llama-3.2-1b-finetuned_v5](https://huggingface.co/AndresR2909/hf-llama-3.2-1b-finetuned_v5)
-- [llama-3.2-3b-finetuned_bnb_nf4](https://huggingface.co/AndresR2909/hf-llama-3.2-3b-finetuned_bnb_nf4)
 - [llama-3.2-3b-finetuned_bnb_nf4_v2](https://huggingface.co/AndresR2909/hf-llama-3.2-3b-finetuned_bnb_nf4_v2)
+- [unsloth_Meta-Llama-3.1-8B-Instruct-bnb-4bit_16bit_v3](https://huggingface.co/AndresR2909/unsloth_Meta-Llama-3.1-8B-Instruct-bnb-4bit_16bit_v3)
+- [unsloth_Meta-Llama-3.1-8B-Instruct-bnb-4bit_16bit_v3](https://huggingface.co/AndresR2909/unsloth_Meta-Llama-3.1-8B-Instruct-bnb-4bit_16bit_v2)
 
 Datasets en HuggingFace:
 - [youtube_transcriptions_summaries_2025_gpt4.1](https://huggingface.co/datasets/AndresR2909/youtube_transcriptions_summaries_2025_gpt4.1)
@@ -100,6 +103,19 @@ Datasets en HuggingFace:
 ## Ejecución de la Interfaz
 
 Para correr la interfaz que permite generar resúmenes y obtener reportes de métricas:
+
+1. Instalar ollama -> [link](https://ollama.com/)
+2. Traer algunos modelos ajustados en formato gguf de huggingface (Revisa que cuantización segun los recursos de tu maquina)
+```bash
+ollama run hf.co/AndresR2909/unsloth_Meta-Llama-3.1-8B-Instruct-bnb-4bit_gguf_v3:Q8_0
+ollama run hf.co/AndresR2909/unsloth_Meta-Llama-3.1-8B-Instruct-bnb-4bit_gguf_v3:Q4_K_M
+
+```
+3. instalar librerias
+```bash
+pip install -r requirements.txt
+```
+4. Ejecutar archivo interface grafica:
 
 ```bash
 streamlit run app/main_interface.py
@@ -114,10 +130,6 @@ streamlit run app/main_interface.py
 ![grafica coseno](image-4.png)
 
 ![criterial score](image-5.png)
-
-```bash
-streamlit run app/main_interface.py
-```
 
 
 
