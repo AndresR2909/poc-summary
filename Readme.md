@@ -83,6 +83,9 @@ Readme.md
 - [`create_summaries.ipynb`](notebooks/create_summaries.ipynb) y [`create_summaries_v2.ipynb`](notebooks/create_summaries_v2.ipynb):
   **Funcionalidad:** Generación de resúmenes de transcripciones usando modelos LLM fundacionales (GPT-4o, GPT-4.1) para destilación de conocimiento.
 
+- [`analisis_tokens_final.ipynb`](notebooks/analisis_tokens_final.ipynb) y [`eda_transcripciones_resumenes.ipynb`](notebooks/eda_transcripciones_resumenes.ipynb):
+  **Funcionalidad:** Analsis de tokens de trnascripciones y resumenes generados y EDA del conjunto de datos generado.
+
 - [`summary_with_slm.ipynb`](notebooks/summary_with_slm.ipynb):
   **Funcionalidad:** Generación de resúmenes con diferentes SLMs, prompts (zero/one shot) y modelos finetuneados.
 
@@ -101,12 +104,12 @@ Readme.md
 
 ---
 
-## Modelos Finetuneados
+## Algunos Modelos Ajustados
 
 - [llama-3.2-1b-finetuned_v5](https://huggingface.co/AndresR2909/hf-llama-3.2-1b-finetuned_v5)
 - [llama-3.2-3b-finetuned_bnb_nf4_v2](https://huggingface.co/AndresR2909/hf-llama-3.2-3b-finetuned_bnb_nf4_v2)
 - [unsloth_Meta-Llama-3.1-8B-Instruct-bnb-4bit_16bit_v3](https://huggingface.co/AndresR2909/unsloth_Meta-Llama-3.1-8B-Instruct-bnb-4bit_16bit_v3)
-- [unsloth_Meta-Llama-3.1-8B-Instruct-bnb-4bit_16bit_v3](https://huggingface.co/AndresR2909/unsloth_Meta-Llama-3.1-8B-Instruct-bnb-4bit_16bit_v2)
+- [unsloth_Meta-Llama-3.1-8B-Instruct-bnb-4bit_16bit_v2](https://huggingface.co/AndresR2909/unsloth_Meta-Llama-3.1-8B-Instruct-bnb-4bit_16bit_v2)
 
 Datasets en HuggingFace:
 - [youtube_transcriptions_summaries_2025_gpt4.1](https://huggingface.co/datasets/AndresR2909/youtube_transcriptions_summaries_2025_gpt4.1)
